@@ -1,8 +1,25 @@
 # Laravel + Vue finance data demo
 
+## Requirements
+This app requires PHP 8.3+ and NPM 18+
+
 ## Installation
 
-1. Install with composer
+1. Clone
+```
+git clone git@github.com:ggtachev/laravel.git
+cd laravel
+```
+
+2. Copy example environment file
+
+```
+cp .env.example .env
+```
+
+update .env DB_DATABASE=./database/database.sqlite if needed
+
+3. Install with composer
 
 If you don't have it locally download composer
 ```
@@ -23,13 +40,15 @@ composer install
 ```
 
 
-2. Install NPM dependencies and build assets
+4. Install NPM dependencies and build assets
 ```
 npm install
 npm run build
 ```
 
-3. Run local server 
+5. Run local server 
 ```
 php artisan serve
 ```
+
+You can see the app on http://127.0.0.1:8000/
