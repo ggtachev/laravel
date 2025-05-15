@@ -29,9 +29,15 @@
                 <p>Select a cryptocurrency to view its chart.</p>
             </div>
         </div>
-        <div class="chart-area">
+        <div class="chart-area" style="display: flex; flex-direction: column;">
             <div v-if="candles.length" style="width: 100%; height: 400px;">
                 <apexchart type="candlestick" height="400" :options="chartOptions" :series="series" />
+            </div>
+            <div v-if="indicators.rsi" style="width: 100%; height: 120px;">
+                <apexchart type="line" height="120" :options="rsiOptions" :series="rsiSeries" />
+            </div>
+            <div v-if="indicators.macd" style="width: 100%; height: 120px;">
+                <apexchart type="line" height="120" :options="macdOptions" :series="macdSeries" />
             </div>
         </div>
     </div>
@@ -83,6 +89,54 @@ export default {
                 },
                 title: {
                     text: this.selectedSymbol,
+                    align: 'left'
+                },
+                xaxis: {
+                    type: 'datetime'
+                },
+                yaxis: {
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        },
+        rsiOptions() {
+            return {
+                chart: {
+                    type: 'line',
+                    height: 120,
+                    width: '100%',
+                    animations: {
+                        enabled: true
+                    }
+                },
+                title: {
+                    text: 'RSI',
+                    align: 'left'
+                },
+                xaxis: {
+                    type: 'datetime'
+                },
+                yaxis: {
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        },
+        macdOptions() {
+            return {
+                chart: {
+                    type: 'line',
+                    height: 120,
+                    width: '100%',
+                    animations: {
+                        enabled: true
+                    }
+                },
+                title: {
+                    text: 'MACD',
                     align: 'left'
                 },
                 xaxis: {
@@ -173,6 +227,28 @@ export default {
             }
 
             return series;
+        },
+        rsiSeries() {
+            return [
+                {
+                    name: 'RSI',
+                    data: this.candles.map(candle => ({
+                        x: candle.time,
+                        y: this.calculateRSI(candle)
+                    }))
+                }
+            ];
+        },
+        macdSeries() {
+            return [
+                {
+                    name: 'MACD',
+                    data: this.candles.map(candle => ({
+                        x: candle.time,
+                        y: this.calculateMACD(candle)
+                    }))
+                }
+            ];
         }
     },
     methods: {
