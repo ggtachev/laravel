@@ -17,6 +17,14 @@
                 <option value="1w">1 week</option>
                 <option value="1M">1 month</option>
             </select>
+            <div>
+                <div><label><input type="checkbox" v-model="indicators.rsi"> RSI</label></div>
+                <div><label><input type="checkbox" v-model="indicators.macd"> MACD</label></div>
+                <div><label><input type="checkbox" v-model="indicators.bollinger"> Bollinger Bands</label></div>
+                <div><label><input type="checkbox" v-model="indicators.sma20"> SMA20</label></div>
+                <div><label><input type="checkbox" v-model="indicators.sma50"> SMA50</label></div>
+                <div><label><input type="checkbox" v-model="indicators.sma200"> SMA200</label></div>
+            </div>
             <div v-if="!candles.length">
                 <p>Select a cryptocurrency to view its chart.</p>
             </div>
@@ -51,6 +59,14 @@ export default {
             ],
             selectedSymbol: 'BTCUSDT',
             selectedInterval: '1h',
+            indicators: {
+                rsi: false,
+                macd: false,
+                bollinger: false,
+                sma20: false,
+                sma50: false,
+                sma200: false
+            },
             candles: [],
         }
     },
@@ -80,7 +96,7 @@ export default {
             }
         },
         series() {
-            return [
+            const series = [
                 {
                     name: this.selectedSymbol,
                     data: this.candles.map(candle => ({
@@ -88,13 +104,99 @@ export default {
                         y: [candle.open, candle.high, candle.low, candle.close]
                     }))
                 }
-            ]
+            ];
+
+            if (this.indicators.rsi) {
+                series.push({
+                    name: 'RSI',
+                    type: 'line',
+                    data: this.candles.map(candle => ({
+                        x: candle.time,
+                        y: this.calculateRSI(candle)
+                    }))
+                });
+            }
+
+            if (this.indicators.macd) {
+                series.push({
+                    name: 'MACD',
+                    type: 'line',
+                    data: this.candles.map(candle => ({
+                        x: candle.time,
+                        y: this.calculateMACD(candle)
+                    }))
+                });
+            }
+
+            if (this.indicators.bollinger) {
+                series.push({
+                    name: 'Bollinger Bands',
+                    type: 'line',
+                    data: this.candles.map(candle => ({
+                        x: candle.time,
+                        y: this.calculateBollingerBands(candle)
+                    }))
+                });
+            }
+
+            if (this.indicators.sma20) {
+                series.push({
+                    name: 'SMA20',
+                    type: 'line',
+                    data: this.candles.map((candle, index) => ({
+                        x: candle.time,
+                        y: this.calculateSMA(this.candles.slice(0, index + 1), 20)
+                    }))
+                });
+            }
+
+            if (this.indicators.sma50) {
+                series.push({
+                    name: 'SMA50',
+                    type: 'line',
+                    data: this.candles.map((candle, index) => ({
+                        x: candle.time,
+                        y: this.calculateSMA(this.candles.slice(0, index + 1), 50)
+                    }))
+                });
+            }
+
+            if (this.indicators.sma200) {
+                series.push({
+                    name: 'SMA200',
+                    type: 'line',
+                    data: this.candles.map((candle, index) => ({
+                        x: candle.time,
+                        y: this.calculateSMA(this.candles.slice(0, index + 1), 200)
+                    }))
+                });
+            }
+
+            return series;
         }
     },
     methods: {
+        calculateRSI(candle) {
+            // Placeholder for RSI calculation
+            return 50;
+        },
+        calculateMACD(candle) {
+            // Placeholder for MACD calculation
+            return 0;
+        },
+        calculateBollingerBands(candle) {
+            // Placeholder for Bollinger Bands calculation
+            return [candle.close, candle.close, candle.close];
+        },
+        calculateSMA(candles, period) {
+            if (candles.length < period) return null;
+            const lastNCandles = candles.slice(-period);
+            const sum = lastNCandles.reduce((acc, candle) => acc + candle.close, 0);
+            return sum / period;
+        },
         async fetchCandles() {
             if (!this.selectedSymbol) return;
-            const url = `https://api.binance.com/api/v3/klines?symbol=${this.selectedSymbol}&interval=${this.selectedInterval}&limit=30`;
+            const url = `https://api.binance.com/api/v3/klines?symbol=${this.selectedSymbol}&interval=${this.selectedInterval}&limit=300`;
             try {
                 const res = await fetch(url);
                 const klines = await res.json();
