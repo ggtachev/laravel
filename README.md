@@ -22,3 +22,14 @@ or if you have it globally just run
 composer install
 ```
 
+
+2. Install NPM dependencies and build assets
+```
+npm install
+npm run build
+```
+
+3. Run local server 
+```
+php artisan serve
+```
