@@ -166,7 +166,7 @@ export default {
                     type: 'line',
                     data: this.candles.map(candle => ({
                         x: candle.time,
-                        y: this.calculateRSI(candle)
+                        y: this.calculateRSI(this.candles.slice(0, this.candles.indexOf(candle) + 1))
                     }))
                 });
             }
@@ -234,7 +234,7 @@ export default {
                     name: 'RSI',
                     data: this.candles.map(candle => ({
                         x: candle.time,
-                        y: this.calculateRSI(candle)
+                        y: this.calculateRSI(this.candles.slice(0, this.candles.indexOf(candle) + 1))
                     }))
                 }
             ];
@@ -252,9 +252,28 @@ export default {
         }
     },
     methods: {
-        calculateRSI(candle) {
-            // Placeholder for RSI calculation
-            return 50;
+        calculateRSI(candles) {
+            const period = 14;
+            if (candles.length < period) return null;
+
+            const changes = candles.map((candle, index) => {
+                if (index === 0) return 0;
+                return candle.close - candles[index - 1].close;
+            });
+
+            const gains = changes.map(change => change > 0 ? change : 0);
+            const losses = changes.map(change => change < 0 ? -change : 0);
+
+            let avgGain = gains.slice(0, period).reduce((sum, gain) => sum + gain, 0) / period;
+            let avgLoss = losses.slice(0, period).reduce((sum, loss) => sum + loss, 0) / period;
+
+            for (let i = period; i < candles.length; i++) {
+                avgGain = (avgGain * (period - 1) + gains[i]) / period;
+                avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
+            }
+
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
         },
         calculateMACD(candle) {
             // Placeholder for MACD calculation
