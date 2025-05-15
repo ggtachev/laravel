@@ -1,2 +1,1 @@
-# finance data app
-
+# Laravel + Vue finance data demo
