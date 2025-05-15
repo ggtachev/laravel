@@ -1,4 +1,4 @@
-php ../composer.phar install
+php composer.phar install
 php artisan key:generate
 npm install
 npm run build
