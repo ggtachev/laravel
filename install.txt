@@ -2,5 +2,6 @@ php composer.phar create-project --prefer-dist laravel/laravel financedata
 cd financedata
 php ../composer.phar install
 php artisan key:generate
+npm install
+npm run build
 php artisan serve
-
