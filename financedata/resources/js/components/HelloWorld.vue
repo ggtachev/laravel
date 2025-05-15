@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="sidebar">
-            <h1>Crypto Candlestick Charts</h1>
+            <h1>GT Trading vue</h1>
             <select v-model="selectedSymbol">
                 <option v-for="crypto in cryptos" :key="crypto.symbol" :value="crypto.symbol">
                     {{ crypto.name }} ({{ crypto.symbol }})
@@ -51,20 +51,9 @@ export default {
     components: { apexchart: VueApexCharts },
     data() {
         return {
-            cryptos: [
-                { name: 'Bitcoin', symbol: 'BTCUSDT' },
-                { name: 'Ethereum', symbol: 'ETHUSDT' },
-                { name: 'Solana', symbol: 'SOLUSDT' },
-                { name: 'Dogecoin', symbol: 'DOGEUSDT' },
-                { name: 'Cardano', symbol: 'ADAUSDT' },
-                { name: 'XRP', symbol: 'XRPUSDT' },
-                { name: 'Litecoin', symbol: 'LTCUSDT' },
-                { name: 'Polkadot', symbol: 'DOTUSDT' },
-                { name: 'Avalanche', symbol: 'AVAXUSDT' },
-                { name: 'Shiba Inu', symbol: 'SHIBUSDT' }
-            ],
+            cryptos: [],
             selectedSymbol: 'BTCUSDT',
-            selectedInterval: '1h',
+            selectedInterval: '1d',
             indicators: {
                 rsi: false,
                 macd: false,
@@ -160,6 +149,7 @@ export default {
                 }
             ];
 
+            /*
             if (this.indicators.rsi) {
                 series.push({
                     name: 'RSI',
@@ -181,6 +171,7 @@ export default {
                     }))
                 });
             }
+            */
 
             if (this.indicators.bollinger) {
                 series.push({
@@ -289,6 +280,21 @@ export default {
             const sum = lastNCandles.reduce((acc, candle) => acc + candle.close, 0);
             return sum / period;
         },
+        async fetchCryptos() {
+            const url = 'https://api.binance.com/api/v3/exchangeInfo';
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                this.cryptos = data.symbols
+                    .filter(symbol => symbol.quoteAsset === 'USDT')
+                    .map(symbol => ({
+                        name: symbol.baseAsset,
+                        symbol: symbol.symbol
+                    }));
+            } catch (e) {
+                console.error('Error fetching cryptocurrencies:', e);
+            }
+        },
         async fetchCandles() {
             if (!this.selectedSymbol) return;
             const url = `https://api.binance.com/api/v3/klines?symbol=${this.selectedSymbol}&interval=${this.selectedInterval}&limit=300`;
@@ -309,6 +315,7 @@ export default {
         }
     },
     mounted() {
+        this.fetchCryptos();
         this.fetchCandles();
     },
     watch: {
