@@ -7,6 +7,16 @@
                     {{ crypto.name }} ({{ crypto.symbol }})
                 </option>
             </select>
+            <select v-model="selectedInterval">
+                <option value="1m">1 minute</option>
+                <option value="5m">5 minutes</option>
+                <option value="30m">30 minutes</option>
+                <option value="1h">1 hour</option>
+                <option value="4h">4 hours</option>
+                <option value="1d">1 day</option>
+                <option value="1w">1 week</option>
+                <option value="1M">1 month</option>
+            </select>
             <div v-if="!candles.length">
                 <p>Select a cryptocurrency to view its chart.</p>
             </div>
@@ -40,6 +50,7 @@ export default {
                 { name: 'Shiba Inu', symbol: 'SHIBUSDT' }
             ],
             selectedSymbol: 'BTCUSDT',
+            selectedInterval: '1h',
             candles: [],
         }
     },
@@ -83,7 +94,7 @@ export default {
     methods: {
         async fetchCandles() {
             if (!this.selectedSymbol) return;
-            const url = `https://api.binance.com/api/v3/klines?symbol=${this.selectedSymbol}&interval=1d&limit=30`;
+            const url = `https://api.binance.com/api/v3/klines?symbol=${this.selectedSymbol}&interval=${this.selectedInterval}&limit=30`;
             try {
                 const res = await fetch(url);
                 const klines = await res.json();
@@ -105,6 +116,9 @@ export default {
     },
     watch: {
         selectedSymbol() {
+            this.fetchCandles();
+        },
+        selectedInterval() {
             this.fetchCandles();
         }
     }
