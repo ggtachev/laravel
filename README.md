@@ -2,6 +2,8 @@
 
 ![preview](./preview.png?raw=true "Preview")
 
+You can try static demo [here](https://ggtachev.github.io/laravel/staticdemo/demo.html).
+
 ## Requirements
 This app requires PHP 8.3+ and NPM 18+
 
