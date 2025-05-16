@@ -1,5 +1,7 @@
 # Laravel + Vue finance data demo
 
+![preview](./preview.png?raw=true "Preview")
+
 ## Requirements
 This app requires PHP 8.3+ and NPM 18+
 
