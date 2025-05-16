@@ -44,7 +44,7 @@
 import VueApexCharts from 'vue3-apexcharts'
 
 export default {
-    name: 'HelloWorld',
+    name: 'FinanceData',
     components: { apexchart: VueApexCharts },
     data() {
         return {

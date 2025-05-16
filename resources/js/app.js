@@ -1,4 +1,4 @@
 import { createApp } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import FinanceData from './components/FinanceData.vue';
 
-createApp(HelloWorld).mount('#app');
+createApp(FinanceData).mount('#app');
