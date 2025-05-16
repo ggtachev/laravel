@@ -86,6 +86,9 @@ export default {
                 yaxis: {
                     tooltip: {
                         enabled: true
+                    },
+                    labels: {
+                        formatter: (value) => value.toFixed(2)
                     }
                 }
             }
@@ -110,6 +113,9 @@ export default {
                 yaxis: {
                     tooltip: {
                         enabled: true
+                    },
+                    labels: {
+                        formatter: (value) => value.toFixed(2)
                     }
                 }
             }
@@ -134,6 +140,9 @@ export default {
                 yaxis: {
                     tooltip: {
                         enabled: true
+                    },
+                    labels: {
+                        formatter: (value) => value.toFixed(2)
                     }
                 }
             }
