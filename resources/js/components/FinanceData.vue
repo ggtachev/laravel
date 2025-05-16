@@ -33,8 +33,8 @@
             <div v-if="indicators.rsi" style="width: 100%; height: 120px;">
                 <apexchart type="line" height="120" :options="rsiOptions" :series="rsiSeries" />
             </div>
-            <div v-if="indicators.macd" style="width: 100%; height: 120px;">
-                <apexchart type="line" height="120" :options="macdOptions" :series="macdSeries" />
+            <div v-if="indicators.macd" style="width: 100%; height: 240px;">
+                <apexchart type="line" height="240" :options="macdOptions" :series="macdSeries" />
             </div>
         </div>
     </div>
@@ -114,6 +114,9 @@ export default {
                     labels: {
                         formatter: (value) => value.toFixed(2)
                     }
+                },
+                stroke: {
+                    width: 1.5
                 }
             }
         },
@@ -121,7 +124,7 @@ export default {
             return {
                 chart: {
                     type: 'line',
-                    height: 120,
+                    height: 240,
                     width: '100%',
                     animations: {
                         enabled: true
@@ -141,6 +144,9 @@ export default {
                     labels: {
                         formatter: (value) => value.toFixed(2)
                     }
+                },
+                stroke: {
+                    width: 1.5
                 }
             }
         },
