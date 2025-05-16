@@ -149,7 +149,7 @@ export default {
                 }
             ];
 
-            /*
+            /* Don't show macd and rsi on the main chart
             if (this.indicators.rsi) {
                 series.push({
                     name: 'RSI',
@@ -233,11 +233,37 @@ export default {
         macdSeries() {
             return [
                 {
-                    name: 'MACD',
-                    data: this.candles.map(candle => ({
-                        x: candle.time,
-                        y: this.calculateMACD(candle)
-                    }))
+                    name: 'MACD Line',
+                    type: 'line',
+                    data: this.candles.map(candle => {
+                        const macd = this.calculateMACD(candle);
+                        return {
+                            x: candle.time,
+                            y: macd ? macd[0] : null
+                        };
+                    })
+                },
+                {
+                    name: 'Signal Line',
+                    type: 'line',
+                    data: this.candles.map(candle => {
+                        const macd = this.calculateMACD(candle);
+                        return {
+                            x: candle.time,
+                            y: macd ? macd[1] : null
+                        };
+                    })
+                },
+                {
+                    name: 'Histogram',
+                    type: 'column',
+                    data: this.candles.map(candle => {
+                        const macd = this.calculateMACD(candle);
+                        return {
+                            x: candle.time,
+                            y: macd ? macd[2] : null
+                        };
+                    })
                 }
             ];
         }
@@ -267,8 +293,52 @@ export default {
             return 100 - (100 / (1 + rs));
         },
         calculateMACD(candle) {
-            // Placeholder for MACD calculation
-            return 0;
+            const index = this.candles.indexOf(candle);
+            if (index < 26) return null; // Need at least 26 periods for MACD
+
+            // Get all prices up to current candle
+            const prices = this.candles.slice(0, index + 1).map(c => c.close);
+            
+            // Calculate EMAs using the standard formula
+            const ema12 = this.calculateEMA(prices, 12);
+            const ema26 = this.calculateEMA(prices, 26);
+            
+            // Calculate MACD line
+            const macdLine = ema12 - ema26;
+            
+            // Calculate MACD values for signal line
+            const macdValues = [];
+            for (let i = 26; i <= index; i++) {
+                const periodPrices = this.candles.slice(0, i + 1).map(c => c.close);
+                const periodEma12 = this.calculateEMA(periodPrices, 12);
+                const periodEma26 = this.calculateEMA(periodPrices, 26);
+                macdValues.push(periodEma12 - periodEma26);
+            }
+            
+            // Calculate signal line (9-period EMA of MACD)
+            const signalLine = this.calculateEMA(macdValues, 9);
+            
+            // Calculate histogram
+            const histogram = macdLine - signalLine;
+            
+            return [macdLine, signalLine, histogram];
+        },
+        calculateEMA(prices, period) {
+            if (prices.length < period) return null;
+            
+            // Calculate multiplier: (2 / (period + 1))
+            const multiplier = 2 / (period + 1);
+            
+            // Calculate SMA for the first EMA value
+            let ema = prices.slice(0, period).reduce((sum, price) => sum + price, 0) / period;
+            
+            // Calculate EMA for remaining values
+            for (let i = period; i < prices.length; i++) {
+                // EMA = (Close - EMA(previous)) × multiplier + EMA(previous)
+                ema = (prices[i] - ema) * multiplier + ema;
+            }
+            
+            return ema;
         },
         calculateBollingerBands(candle) {
             // Placeholder for Bollinger Bands calculation
