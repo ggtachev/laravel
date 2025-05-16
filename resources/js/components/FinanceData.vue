@@ -2,11 +2,31 @@
     <div class="container">
         <div class="sidebar">
             <h1>GT Trading vue</h1>
-            <select v-model="selectedSymbol">
-                <option v-for="crypto in cryptos" :key="crypto.symbol" :value="crypto.symbol">
-                    {{ crypto.name }} ({{ crypto.symbol }})
-                </option>
-            </select>
+            <div class="custom-select">
+                <div class="select-label" @click="toggleSelect" :class="{ 'active': isSelectOpen }">
+                    {{ selectedCrypto ? `${selectedCrypto.name} (${selectedCrypto.symbol})` : 'Select cryptocurrency' }}
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="select-dropdown" v-if="isSelectOpen">
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        @input="filterCryptos" 
+                        placeholder="Search cryptocurrency..."
+                        ref="searchInput"
+                    >
+                    <div class="options-list">
+                        <div 
+                            v-for="crypto in filteredCryptos" 
+                            :key="crypto.symbol"
+                            @click="selectCrypto(crypto)"
+                            class="option"
+                        >
+                            {{ crypto.name }} ({{ crypto.symbol }})
+                        </div>
+                    </div>
+                </div>
+            </div>
             <select v-model="selectedInterval">
                 <option value="1m">1 minute</option>
                 <option value="5m">5 minutes</option>
@@ -60,9 +80,15 @@ export default {
                 sma200: false
             },
             candles: [],
+            isSelectOpen: false,
+            searchQuery: '',
+            filteredCryptos: [],
         }
     },
     computed: {
+        selectedCrypto() {
+            return this.cryptos.find(c => c.symbol === this.selectedSymbol);
+        },
         chartOptions() {
             return {
                 chart: {
@@ -305,6 +331,28 @@ export default {
         }
     },
     methods: {
+        toggleSelect() {
+            this.isSelectOpen = !this.isSelectOpen;
+            if (this.isSelectOpen) {
+                this.searchQuery = '';
+                this.filteredCryptos = this.cryptos;
+                this.$nextTick(() => {
+                    this.$refs.searchInput?.focus();
+                });
+            }
+        },
+        filterCryptos() {
+            const query = this.searchQuery.toLowerCase();
+            this.filteredCryptos = this.cryptos.filter(crypto => 
+                crypto.name.toLowerCase().includes(query) || 
+                crypto.symbol.toLowerCase().includes(query)
+            );
+        },
+        selectCrypto(crypto) {
+            this.selectedSymbol = crypto.symbol;
+            this.isSelectOpen = false;
+            this.searchQuery = '';
+        },
         calculateRSI(candles) {
             const period = 14;
             if (candles.length < period) return null;
@@ -448,6 +496,12 @@ export default {
         },
         selectedInterval() {
             this.fetchCandles();
+        },
+        cryptos: {
+            immediate: true,
+            handler(newCryptos) {
+                this.filteredCryptos = newCryptos;
+            }
         }
     }
 }
@@ -485,5 +539,67 @@ select {
 h1 {
     font-size: 1.3em;
     margin-bottom: 1em;
+}
+.custom-select {
+    position: relative;
+    margin-bottom: 1em;
+}
+
+.select-label {
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+}
+
+.select-label.active {
+    border-color: #666;
+}
+
+.arrow {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 4px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.select-dropdown input {
+    width: 100%;
+    padding: 0.5em;
+    border: none;
+    border-bottom: 1px solid #eee;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.options-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.option {
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+.option:hover {
+    background: #f5f5f5;
 }
 </style>
