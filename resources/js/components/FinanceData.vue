@@ -180,12 +180,36 @@ export default {
             */
 
             if (this.indicators.bollinger) {
+                const bollingerData = this.candles.map(candle => {
+                    const bands = this.calculateBollingerBands(candle);
+                    return {
+                        x: candle.time,
+                        y: bands
+                    };
+                });
+
                 series.push({
                     name: 'Bollinger Bands',
                     type: 'line',
-                    data: this.candles.map(candle => ({
-                        x: candle.time,
-                        y: this.calculateBollingerBands(candle)
+                    data: bollingerData.map(d => ({
+                        x: d.x,
+                        y: d.y ? d.y[0] : null // Upper Band
+                    }))
+                });
+                series.push({
+                    name: 'Middle Band',
+                    type: 'line',
+                    data: bollingerData.map(d => ({
+                        x: d.x,
+                        y: d.y ? d.y[1] : null // Middle Band (SMA)
+                    }))
+                });
+                series.push({
+                    name: 'Lower Band',
+                    type: 'line',
+                    data: bollingerData.map(d => ({
+                        x: d.x,
+                        y: d.y ? d.y[2] : null // Lower Band
                     }))
                 });
             }
@@ -347,8 +371,26 @@ export default {
             return ema;
         },
         calculateBollingerBands(candle) {
-            // Placeholder for Bollinger Bands calculation
-            return [candle.close, candle.close, candle.close];
+            const index = this.candles.indexOf(candle);
+            if (index < 20) return null; // Need at least 20 periods for Bollinger Bands
+
+            // Get the last 20 candles up to current candle
+            const periodCandles = this.candles.slice(Math.max(0, index - 19), index + 1);
+            const prices = periodCandles.map(c => c.close);
+
+            // Calculate 20-period SMA (Middle Band)
+            const sma = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+
+            // Calculate standard deviation
+            const squaredDifferences = prices.map(price => Math.pow(price - sma, 2));
+            const variance = squaredDifferences.reduce((sum, diff) => sum + diff, 0) / prices.length;
+            const standardDeviation = Math.sqrt(variance);
+
+            // Calculate Upper and Lower Bands
+            const upperBand = sma + (2 * standardDeviation);
+            const lowerBand = sma - (2 * standardDeviation);
+
+            return [upperBand, sma, lowerBand];
         },
         calculateSMA(candles, period) {
             if (candles.length < period) return null;
