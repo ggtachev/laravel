@@ -25,9 +25,6 @@
                 <div><label><input type="checkbox" v-model="indicators.sma50"> SMA50</label></div>
                 <div><label><input type="checkbox" v-model="indicators.sma200"> SMA200</label></div>
             </div>
-            <div v-if="!candles.length">
-                <p>Select a cryptocurrency to view its chart.</p>
-            </div>
         </div>
         <div class="chart-area" style="display: flex; flex-direction: column;">
             <div v-if="candles.length" style="width: 100%; height: 400px;">
