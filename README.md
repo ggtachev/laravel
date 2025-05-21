@@ -56,3 +56,12 @@ php artisan serve
 ```
 
 You can see the app on http://127.0.0.1:8000/
+
+6. To see 'cache' feature
+
+```
+git checkout -b cache origin/cache
+php artisan migrate:fresh
+npm run build
+```
+restart the web server if needed

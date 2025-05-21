@@ -453,7 +453,7 @@ export default {
             return sum / period;
         },
         async fetchCryptos() {
-            const url = 'https://api.binance.com/api/v3/exchangeInfo';
+            const url = '/getfromcache?data=' + encodeURIComponent('https://api.binance.com/api/v3/exchangeInfo');
             try {
                 const res = await fetch(url);
                 const data = await res.json();
